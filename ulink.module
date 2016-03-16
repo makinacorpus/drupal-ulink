@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * µLink module.
+ */
+
+use Drupal\Core\Form\FormState;
+
+/**
+ * Implements hook_filter_info().
+ */
+function ulink_filter_info() {
+  return [
+    'ulink_entity' => [
+      'title'             => t('Does some linking'),
+      'description'       => t('Will process anything like entity://TYPE/ID where TYPE is an entity type and ID is an entity identifier and convert it to link'),
+      'prepare callback'  => 'ulink_filter_prepare',
+      'process callback'  => 'ulink_filter_process',
+      'settings callback' => 'ulink_filter_settings',
+      'default settings'  => [],
+    ],
+  ];
+}
+
+/**
+ * Implements callback_filter_prepare().
+ */
+function ulink_filter_prepare($text, $filter, $format, $langcode) {
+  return sf_dic_plugin_create('MakinaCorpus\ULink\EntityLinkFilter', (array)$filter)->prepare($text, $langcode);
+}
+
+/**
+ * Implements callback_filter_process().
+ */
+function ulink_filter_process($text, $filter, $format, $langcode) {
+  return sf_dic_plugin_create('MakinaCorpus\ULink\EntityLinkFilter', (array)$filter)->process($text, $langcode)->getProcessedText();
+}
+
+/**
+ * Implements callback_filter_settings().
+ */
+function ulink_filter_settings($form, &$form_state, $filter) {
+  return sf_dic_plugin_create('MakinaCorpus\ULink\EntityLinkFilter', (array)$filter)->settingsForm($form, new FormState($form_state));
+}

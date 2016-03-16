@@ -1,0 +1,24 @@
+{
+    "name" : "makinacorpus/drupal-ulink",
+    "type" : "drupal-module",
+    "description" : "Provide some input filters for making links, along with an optional CKEditor plugin",
+    "homepage" : "http://github.com/makinacorpus/drupal-ulink",
+    "license" : "GPL-2",
+    "authors" : [{
+            "name" : "Pierre Rineau",
+            "email" : "pierre.rineau@makina-corpus.com"
+        }, {
+            "name" : "Makina Corpus",
+            "homepage" : "http://makina-corpus.com"
+        }
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "MakinaCorpus\\Ucms\\ULink\\" : "src"
+        }
+    },
+    "require" : {
+        "makinacorpus/drupal-sf-dic" : "^3.0"
+    },
+    "minimum-stability" : "dev"
+}
