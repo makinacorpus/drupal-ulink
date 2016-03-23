@@ -1,0 +1,17 @@
+services:
+
+  ulink.finder.node.news:
+    public: false
+    class: MakinaCorpus\ULink\Finder\NodeFinder
+    arguments: ["@database", "news", "News"]
+
+  ulink.finder.node.page:
+    public: false
+    class: MakinaCorpus\ULink\Finder\NodeFinder
+    arguments: ["@database", "page", "Page"]
+
+  ulink.finder.registry:
+    class: MakinaCorpus\ULink\EntityFinderRegistry
+    calls:
+      - [register, ["@ulink.finder.node.news"]]
+      - [register, ["@ulink.finder.node.page"]]

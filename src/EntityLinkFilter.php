@@ -12,7 +12,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class EntityLinkFilter extends FilterBase implements ContainerFactoryPluginInterface
 {
-    const ENTITY_REGEX = '@entity://([\w-]+)/([a-zA-Z\d]+)@';
+    const SCHEME_REGEX = '@entity:(|//)([\w-]+)/([a-zA-Z\d]+)@';
+    const MOUSTACHE_REGEX = '@\{\{([\w-]+)/([a-zA-Z\d]+)\}\}@';
 
     /**
      * {@inheritdoc}
@@ -55,7 +56,44 @@ class EntityLinkFilter extends FilterBase implements ContainerFactoryPluginInter
         $matches  = [];
         $done     = [];
 
-        if (preg_match_all(self::ENTITY_REGEX, $text, $matches)) {
+        if (preg_match_all(self::SCHEME_REGEX, $text, $matches)) {
+            foreach ($matches[0] as $index => $match) {
+
+                if (isset($done[$match])) {
+                    continue;
+                }
+                $done[$match] = true;
+
+                $type = $matches[2][$index];
+                $id   = $matches[3][$index];
+
+                try {
+                    $entity = $this->entityManager->getStorage($type)->load($id);
+
+                    // To be remove for Drupal 8
+                    if (!$entity instanceof EntityInterface) {
+                        $uri = entity_uri($type, $entity);
+                        if (!$uri) {
+                            throw new \InvalidArgumentException(sprintf("%s: entity type is not supported yet"));
+                        }
+                    } else {
+                        $uri = $entity->url();
+                    }
+
+                    if (!$uri) {
+                        throw new \InvalidArgumentException(sprintf("%s: entity type cannot provide URI"));
+                    }
+
+                    $text = str_replace($match, $uri, $text);
+
+                } catch (\Exception $e) {
+                    // Entity type does not exist, just fail silently, don't
+                    // even I don't care...
+                }
+            }
+        }
+
+        if (preg_match_all(self::MOUSTACHE_REGEX, $text, $matches)) {
             foreach ($matches[0] as $index => $match) {
 
                 if (isset($done[$match])) {

@@ -1,4 +1,5 @@
 name = µLink
 description = Provide some input filters for making links, along with an optional CKEditor plugin
 core = 7.x
+dependencies[] = minidialog
 dependencies[] = sf_dic

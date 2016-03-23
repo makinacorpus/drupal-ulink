@@ -7,6 +7,76 @@
 use Drupal\Core\Form\FormState;
 
 /**
+ * Implements hook_menu().
+ */
+function ulink_menu() {
+  $items = [];
+
+  $items['ulink/dialog'] = [
+    'page callback'     => 'sf_dic_page',
+    'page arguments'    => ['MakinaCorpus\ULink\Controller\DialogController::dialog'],
+    'access arguments'  => ['access content'],
+  ];
+  $items['ulink/search'] = [
+    'page callback'     => 'sf_dic_page',
+    'page arguments'    => ['MakinaCorpus\ULink\Controller\DialogController::search'],
+    'access arguments'  => ['access content'],
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_ckeditor_plugin().
+ */
+function ulink_ckeditor_plugin() {
+  return [
+    'ulink' => [
+      'name' => 'ulink',
+      'desc' => t("µLink entity selector"),
+      'path' => drupal_get_path('module', 'ulink') . '/js/ckeditor/',
+      'buttons' => [
+        'ulink' => [
+          'label' => t("Link content"),
+          'icon'  => 'icons/ulink.png',
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function ulink_page_build(&$page) {
+  drupal_add_library('ulink', 'dialog');
+}
+
+/**
+ * Implements hook_library().
+ */
+function ulink_library() {
+  return [
+    'dialog' => [
+      'title'   => 'µLink',
+      'website' => 'http://github.com/makinacorpus/ulink',
+      'version' => '0.1',
+      'js' => [
+        drupal_get_path('module', 'ulink') . '/js/better-autocomplete/better-autocomplete.js' => [],
+        drupal_get_path('module', 'ulink') . '/js/ulink.js' => [],
+      ],
+      'css' => [
+        drupal_get_path('module', 'ulink') . '/js/better-autocomplete/better-autocomplete.css' => [],
+      ],
+      'dependencies' => [
+        ['system', 'drupal.ajax'],
+        ['system', 'ui.dialog'],
+      ],
+    ],
+  ];
+}
+
+/**
  * Implements hook_filter_info().
  */
 function ulink_filter_info() {
