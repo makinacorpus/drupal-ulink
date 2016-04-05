@@ -46,10 +46,15 @@ function ulink_ckeditor_plugin() {
 }
 
 /**
- * Implements hook_page_build().
+ * Implements hook_element_info_alter().
  */
-function ulink_page_build(&$page) {
-  drupal_add_library('ulink', 'dialog');
+function ulink_element_info_alter(&$types) {
+  // Used when using ckeditor module.
+  if (isset($types['text_format']['#pre_render']) && is_array($types['text_format']['#pre_render'])) {
+    if (in_array('ckeditor_pre_render_text_format', $types['text_format']['#pre_render'])) {
+      $types['text_format']['#attached']['library'][] = ['ulink', 'dialog'];
+    }
+  }
 }
 
 /**
