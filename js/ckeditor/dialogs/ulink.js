@@ -79,10 +79,10 @@
         // Prepare the link to content feature
         hrefElement.getInputElement().$.placeholder = Drupal.t("Please type in at least 3 letters...");
         ULink.selector.attach(hrefElement.getInputElement().$, function (result, input) {
-          if (!result.title) { // Filter out invalid results
+          if (!result || !result.title) { // Filter out invalid results
             return;
           }
-          if (result && result.id && result.type) {
+          if (result.id && result.type) {
             textElement.setValue(result.title);
             // Because we do have problems with ckeditor URL parsing, we need to
             // force it to NOT match our protocol, hence the {{...}}, this also
