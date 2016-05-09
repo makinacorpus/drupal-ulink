@@ -51,9 +51,7 @@
 
         var editor = this.getParentEditor();
         var selection = editor.getSelection();
-        var element = null;
-
-        element = plugin.getSelectedLink(editor);
+        var element = plugin.getSelectedLink(editor);
         if (element && element.hasAttribute('href')) {
           // Don't change selection if some element is already selected.
           // For example - don't destroy fake selection.
@@ -83,7 +81,8 @@
             return;
           }
           if (result.id && result.type) {
-            textElement.setValue(result.title);
+            // Convert HTML entities
+            textElement.setValue(jQuery("<div/>").html(result.title).text());
             // Because we do have problems with ckeditor URL parsing, we need to
             // force it to NOT match our protocol, hence the {{...}}, this also
             // means that our PHP server side parser must also match this
@@ -161,7 +160,7 @@
             }
           });
 
-          var textElement = this.getContentElement('tab-content', 'text');
+          textElement = this.getContentElement('tab-content', 'text');
           element.setHtml(textElement.getValue());
 
           // We changed the content, so need to select it again.
