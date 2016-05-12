@@ -72,6 +72,8 @@
           textElement.setValue(element.getHtml());
           titleElement.setValue(element.getAttribute('title'));
           targetElement.setValue(element.getAttribute('target'));
+        } else {
+          textElement.setValue(selection.getSelectedText());
         }
 
         // Prepare the link to content feature
@@ -81,8 +83,11 @@
             return;
           }
           if (result.id && result.type) {
-            // Convert HTML entities
-            textElement.setValue(jQuery("<div/>").html(result.title).text());
+            // Do not override previous user input
+            if (!textElement.getValue()) {
+              // Convert HTML entities
+              textElement.setValue(jQuery("<div/>").html(result.title).text());
+            }
             // Because we do have problems with ckeditor URL parsing, we need to
             // force it to NOT match our protocol, hence the {{...}}, this also
             // means that our PHP server side parser must also match this

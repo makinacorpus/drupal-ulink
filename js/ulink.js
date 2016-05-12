@@ -37,7 +37,10 @@ var ULink = {};
         return;
       }
       if (result && result.id && result.type) {
-        input.val(result.title);
+        // Do not replace value if there is already one (link edit)
+        if (!input.val()) {
+          input.val(result.title);
+        }
         var hidden = input.parent().find('.ulink-uri');
         if (hidden.length) {
           hidden.val('entity://' + result.type + '/' + result.id);
