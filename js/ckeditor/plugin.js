@@ -5,7 +5,7 @@
 
   CKEDITOR.plugins.add('ulink', {
 
-    requires : ['link'],
+    //requires : ['link'],
     hidpi: true,
     icons: 'ulink',
 
@@ -17,6 +17,18 @@
         label: Drupal.t("Link to content"),
         command: 'ulink'
       });
+
+      editor.setKeystroke( CKEDITOR.CTRL + 76 /*L*/, 'ulink' );
+      editor.on('doubleclick', function (evt) {
+        var element = CKEDITOR.plugins.link.getSelectedLink(editor) || evt.data.element;
+
+        if (!element.isReadOnly()) {
+          if (element.is('a')) {
+            evt.data.dialog = 'ulinkDialog';
+            evt.data.link = element; // Pass the link to be selected along with event data.
+          }
+        }
+      }, null, null, 0);
 
       CKEDITOR.dialog.add('ulinkDialog', this.path + 'dialogs/ulink.js');
     }
