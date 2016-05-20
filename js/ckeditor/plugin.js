@@ -6,6 +6,7 @@
   CKEDITOR.plugins.add('ulink', {
 
     //requires : ['link'],
+    requires: 'ajax,basicstyles,blockquote,ccmssourcedialog,clipboard,contextmenu,enterkey,entities,format,horizontalrule,indent,indentlist,justify,link,list,maximize,nbsp,pastefromword,pastetext,removeformat,resize,showblocks,specialchar,toolbar,undo,widget,widgetcommon,wysiwygarea',
     hidpi: true,
     icons: 'ulink',
 
