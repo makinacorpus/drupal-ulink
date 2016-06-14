@@ -12,7 +12,10 @@
 
     init: function (editor) {
 
-      editor.addCommand('ulink', new CKEDITOR.dialogCommand( 'ulinkDialog'));
+      editor.addCommand('ulink', new CKEDITOR.dialogCommand( 'ulinkDialog', {
+        allowedContent: 'a[name,id,href,title]',
+        requiredContent: 'a[href]'
+      }));
 
       editor.ui.addButton('ulink', {
         label: Drupal.t("Link to content"),
