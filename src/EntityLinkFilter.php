@@ -48,6 +48,36 @@ class EntityLinkFilter extends FilterBase implements ContainerFactoryPluginInter
         $this->entityManager = $entityManager;
     }
 
+    protected function getEntityURI($type, $id)
+    {
+        // In most cases, this will be used for nodes only, so just set the
+        // node URL.
+        // It will avoid nasty bugs, since the 'text' core module does sanitize
+        // (and call check_markup()) during field load if there are any circular
+        // links dependencies between two nodes, it triggers an finite loop.
+        // This will also make the whole faster.
+        // @todo If node does not exists, no error will be triggered.
+        if ('node' === $type) {
+            $uri = url('node/' . $id);
+        } else {
+            $entity = $this->entityManager->getStorage($type)->load($id);
+
+            // To be remove for Drupal 8
+            if (!$entity instanceof EntityInterface) {
+                $uri = entity_uri($type, $entity);
+                if (!$uri) {
+                    throw new \InvalidArgumentException(sprintf("%s: entity type is not supported yet"));
+                }
+            } else {
+                $uri = $entity->url();
+            }
+        }
+
+        if (!$uri) {
+            throw new \InvalidArgumentException(sprintf("%s: entity type cannot provide URI"));
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -68,41 +98,14 @@ class EntityLinkFilter extends FilterBase implements ContainerFactoryPluginInter
                 $id   = $matches[3][$index];
 
                 try {
-                    // In most cases, this will be used for nodes only, so just
-                    // set the node URL.
-                    // It will avoid nasty bugs, since the 'text' core module
-                    // does sanitize (and call check_markup()) during field load
-                    // if there are any circular links dependencies between two
-                    // nodes, it triggers an finite loop.
-                    // This will also make the whole faster.
-                    // @todo If node does not exists, no error will be triggered.
-                    if ('node' === $type) {
-                        $uri = url('node/' . $id);
-                    } else {
-                        $entity = $this->entityManager->getStorage($type)->load($id);
-
-                        // To be remove for Drupal 8
-                        if (!$entity instanceof EntityInterface) {
-                            $uri = entity_uri($type, $entity);
-                            if (!$uri) {
-                                throw new \InvalidArgumentException(sprintf("%s: entity type is not supported yet"));
-                            }
-                        } else {
-                            $uri = $entity->url();
-                        }
-                    }
-
-                    if (!$uri) {
-                        throw new \InvalidArgumentException(sprintf("%s: entity type cannot provide URI"));
-                    }
-
-                    $text = str_replace($match, $uri, $text);
-
+                    $uri = $this->getEntityURI($type, $id);
                 } catch (\Exception $e) {
                     // Entity type does not exist, just fail silently, don't
                     // even I don't care...
-                    $text = str_replace($match, '#', $text);
+                    $uri = '#';
                 }
+
+                $text = str_replace($match, $uri, $text);
             }
         }
 
@@ -118,28 +121,14 @@ class EntityLinkFilter extends FilterBase implements ContainerFactoryPluginInter
                 $id   = $matches[2][$index];
 
                 try {
-                    $entity = $this->entityManager->getStorage($type)->load($id);
-
-                    // To be remove for Drupal 8
-                    if (!$entity instanceof EntityInterface) {
-                        $uri = entity_uri($type, $entity);
-                        if (!$uri) {
-                            throw new \InvalidArgumentException(sprintf("%s: entity type is not supported yet"));
-                        }
-                    } else {
-                        $uri = $entity->url();
-                    }
-
-                    if (!$uri) {
-                        throw new \InvalidArgumentException(sprintf("%s: entity type cannot provide URI"));
-                    }
-
-                    $text = str_replace($match, $uri, $text);
-
+                    $uri = $this->getEntityURI($type, $id);
                 } catch (\Exception $e) {
                     // Entity type does not exist, just fail silently, don't
                     // even I don't care...
+                    $uri = '#';
                 }
+
+                $text = str_replace($match, $uri, $text);
             }
         }
 
