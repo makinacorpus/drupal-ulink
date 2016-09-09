@@ -15,3 +15,7 @@ services:
     calls:
       - [register, ["@ulink.finder.node.news"]]
       - [register, ["@ulink.finder.node.page"]]
+
+  ulink.entity_link_generator:
+    class: MakinaCorpus\ULink\EntityLinkGenerator
+    arguments: ["@entity.manager"]

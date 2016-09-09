@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Implements hook_field_schema().
+ */
+function ulink_field_schema($field) {
+  switch ($field['type']) {
+
+    case 'ulink':
+      return [
+        'columns' => [
+          'value' => [
+            'description' => "URL",
+            'type'        => 'text',
+            'not null'    => true,
+            'default'     => null,
+          ],
+          'title' => [
+            'description' => 'The title of the URL.',
+            'type'        => 'varchar',
+            'length'      => 1024,
+            'not null'    => false,
+          ],
+          'attributes' => [
+            'description' => 'The serialized array of attributes of the URL.',
+            'type'        => 'text',
+            'not null'    => false,
+          ],
+        ],
+        'indexes' => [],
+      ];
+  }
+}

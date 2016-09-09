@@ -6,6 +6,13 @@
 
 use Drupal\Core\Form\FormState;
 
+use MakinaCorpus\ULink\Controller\DialogController;
+
+/**
+ * Field API needs this.
+ */
+require_once __DIR__ . '/ulink.field.inc';
+
 /**
  * Implements hook_menu().
  */
@@ -14,16 +21,48 @@ function ulink_menu() {
 
   $items['ulink/dialog'] = [
     'page callback'     => 'sf_dic_page',
-    'page arguments'    => ['MakinaCorpus\ULink\Controller\DialogController::dialog'],
+    'page arguments'    => [DialogController::class . '::dialog'],
     'access arguments'  => ['access content'],
   ];
   $items['ulink/search'] = [
     'page callback'     => 'sf_dic_page',
-    'page arguments'    => ['MakinaCorpus\ULink\Controller\DialogController::search'],
+    'page arguments'    => [DialogController::class . '::search'],
     'access arguments'  => ['access content'],
   ];
 
   return $items;
+}
+
+/**
+ * Generate URI from given internal regex
+ *
+ * @param string $uri
+ * @param boolean $raiseExceptions
+ *
+ * @return string
+ */
+function ulink_get_path($uri, $raiseExceptions = false) {
+  try {
+    /** @var \MakinaCorpus\ULink\EntityLinkGenerator $generator */
+    $generator = \Drupal::service('ulink.entity_link_generator');
+    return $generator->getEntityPathFromURI($uri);
+  } catch (\Exception $e) {
+    if ($raiseExceptions) {
+      throw $e;
+    }
+  }
+}
+
+/**
+ * Implements hook_url_outbound_alter().
+ */
+function ulink_url_outbound_alter(&$path, &$options, $original_path) {
+  if ($path && $original_path && !$options['external']) {
+    $generated = ulink_get_path($original_path);
+    if ($generated) {
+      $path = $generated;
+    }
+  }
 }
 
 /**

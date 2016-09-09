@@ -16,3 +16,8 @@ processed and turned into correct Drupal URL or URL aliases.
 # CKEditor plugin
 
 The CKEditor plugin requires ckeditor >= 4.
+
+# Generating URLs
+
+You may use ``url('entity://node/12')`` to generate the node link, there
+is an ``hook_url_outbound_alter`` implementation that will do the job.
