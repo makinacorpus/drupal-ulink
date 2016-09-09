@@ -86,29 +86,31 @@ function ulink_field_formatter_view($entity_type, $entity, $field, $instance, $l
     $settings = $display['settings'];
 
     foreach ($items as $delta => $item) {
+      $title = empty($item['title']) ? $item['value'] : $item['title'];
 
-      // @todo security and filtering, protocol, value, etc...
-      $title  = empty($item['title']) ? $item['value'] : $item['title'];
-      $parsed = drupal_parse_url($item['value']);
+      $generated = ulink_get_path($item['value']);
+      if ($generated) {
+        $item['path'] = $generated;
+        // @todo for internal links, we must be able to load the entity to
+        //   have a title; that's for a future version
+        if (!$title) {
 
-      $item['path'] = $parsed['path'];
-      $item['options'] = [
-        'query'       => $parsed['query'],
-        'fragment'    => $parsed['fragment'],
-        'attributes'  => $item['attributes'],
-      ];
+        }
+      } else {
+        $parsed = drupal_parse_url($item['value']);
+        $item['path'] = $parsed['path'];
+        $item['options']['query'] = $parsed['query'];
+        $item['options']['fragment'] = $parsed['fragment'];
+      }
+
+      $item['options']['attributes'] = $item['attributes'] ? $item['attributes'] : [];
 
       // Trim the link title to the desired length.
       if (!empty($settings['trim_length'])) {
         $title = truncate_utf8($title, $settings['trim_length'], false, true);
       }
 
-      $element[$delta] = [
-        '#type'     => 'link',
-        '#title'    => $title,
-        '#href'     => $item['path'],
-        '#options'  => $item['options'],
-      ];
+      $element[$delta]['#markup'] = l($title, $item['path'], $item['options']);
     }
   }
 
@@ -148,7 +150,7 @@ function ulink_field_widget_form(&$form, &$form_state, $field, $instance, $langc
     '#default_value'    => isset($items[$delta]['value']) ? $items[$delta]['value'] : '',
     '#maxlength'        => 2048,
     '#required'         => !empty($element['#required']),
-    '#element_validate' => ['url_validate_url'],
+    '#element_validate' => ['ulink_validate_url'],
   ];
 
   if (!module_exists('elements')) {
@@ -239,4 +241,28 @@ function ulink_field_load($entity_type, $entities, $field, $instances, $langcode
  */
 function ulink_field_is_empty($item, $field) {
   return empty($item['value']);
+}
+
+/**
+ * Validate URL.
+ */
+function ulink_validate_url(&$element, &$form_state) {
+
+  $value = trim($element['#value']);
+  form_set_value($element, $value, $form_state);
+
+  if (empty($value)) {
+    return; // '#size' and '#required' are already validated by the form API.
+  }
+
+  // Attempt to generate internal links.
+  $generated = ulink_get_path($value);
+  if ($generated) {
+    return; // This is a valid internal link; this passes.
+  }
+
+  // Else fallback on Drupal URL validation.
+  if (!valid_url($value, true)) {
+    form_error($element, t('The URL %url is not valid.', ['%url' => $value]));
+  }
 }

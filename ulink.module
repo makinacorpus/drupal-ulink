@@ -7,6 +7,7 @@
 use Drupal\Core\Form\FormState;
 
 use MakinaCorpus\ULink\Controller\DialogController;
+use MakinaCorpus\ULink\EntityLinkFilter;
 
 /**
  * Field API needs this.
@@ -140,19 +141,19 @@ function ulink_filter_info() {
  * Implements callback_filter_prepare().
  */
 function ulink_filter_prepare($text, $filter, $format, $langcode) {
-  return sf_dic_plugin_create('MakinaCorpus\ULink\EntityLinkFilter', (array)$filter)->prepare($text, $langcode);
+  return sf_dic_plugin_create(EntityLinkFilter::class, (array)$filter)->prepare($text, $langcode);
 }
 
 /**
  * Implements callback_filter_process().
  */
 function ulink_filter_process($text, $filter, $format, $langcode) {
-  return sf_dic_plugin_create('MakinaCorpus\ULink\EntityLinkFilter', (array)$filter)->process($text, $langcode)->getProcessedText();
+  return sf_dic_plugin_create(EntityLinkFilter::class, (array)$filter)->process($text, $langcode)->getProcessedText();
 }
 
 /**
  * Implements callback_filter_settings().
  */
 function ulink_filter_settings($form, &$form_state, $filter) {
-  return sf_dic_plugin_create('MakinaCorpus\ULink\EntityLinkFilter', (array)$filter)->settingsForm($form, new FormState($form_state));
+  return sf_dic_plugin_create(EntityLinkFilter::class, (array)$filter)->settingsForm($form, new FormState($form_state));
 }

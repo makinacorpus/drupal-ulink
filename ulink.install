@@ -13,7 +13,6 @@ function ulink_field_schema($field) {
             'description' => "URL",
             'type'        => 'text',
             'not null'    => true,
-            'default'     => null,
           ],
           'title' => [
             'description' => 'The title of the URL.',

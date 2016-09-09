@@ -7,6 +7,8 @@ use Drupal\Core\Entity\EntityManager;
 
 /**
  * Generate links from internal resources URI
+ *
+ * @todo unit test me!
  */
 final class EntityLinkGenerator
 {
