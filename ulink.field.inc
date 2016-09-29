@@ -104,13 +104,19 @@ function ulink_field_formatter_view($entity_type, $entity, $field, $instance, $l
       }
 
       $item['options']['attributes'] = $item['attributes'] ? $item['attributes'] : [];
+      $item['options']['html'] = FALSE;
 
       // Trim the link title to the desired length.
       if (!empty($settings['trim_length'])) {
         $title = truncate_utf8($title, $settings['trim_length'], false, true);
       }
 
-      $element[$delta]['#markup'] = l($title, $item['path'], $item['options']);
+      $element[$delta] = [
+        '#theme'   => 'link',
+        '#text'   => $title,
+        '#path'    => $item['path'],
+        '#options' => $item['options'],
+      ];
     }
   }
 
