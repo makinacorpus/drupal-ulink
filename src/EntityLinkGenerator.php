@@ -12,6 +12,9 @@ use Drupal\Core\Entity\EntityManager;
  */
 final class EntityLinkGenerator
 {
+    const SCHEME_TYPE = 'scheme';
+    const STACHE_TYPE = 'stache';
+
     const SCHEME_REGEX = '@entity:(|//)([\w-]+)/([a-zA-Z\d]+)@';
     const STACHE_REGEX = '@\{\{([\w-]+)/([a-zA-Z\d]+)\}\}@';
 
@@ -90,19 +93,58 @@ final class EntityLinkGenerator
      *
      * @param string $uri
      *   Must match one of the supported schemes
+     *
+     * @throws InvalidArgumentException
      */
     public function getEntityPathFromURI($uri)
     {
-        $matches = [];
-
-        if (preg_match(self::SCHEME_REGEX, $uri, $matches)) {
-            return $this->getEntityPath($matches[2], $matches[3]);
-        }
-        if (preg_match(self::STACHE_REGEX, $uri, $matches)) {
-            return $this->getEntityPath($matches[1], $matches[2]);
+        if ($parts = $this->decomposeURI($uri)) {
+            return $this->getEntityPath($parts['type'], $parts['id']);
         }
 
         throw new \InvalidArgumentException(sprintf("%s: invalid entity URI scheme or malformed URI", $uri));
+    }
+
+    /**
+     * Extract entity type and id from the given URI.
+     *
+     * @param string $uri
+     * @param string $type
+     *  The type of the URI will be passed on to you through this argument.
+     *
+     * @return string[]
+     */
+    public function decomposeURI($uri, &$type = null)
+    {
+        if (preg_match(self::SCHEME_REGEX, $uri, $matches)) {
+            $type = self::SCHEME_TYPE;
+            return array_combine(['type', 'id'], array_slice($matches, 2));
+        }
+        if (preg_match(self::STACHE_REGEX, $uri, $matches)) {
+            $type = self::STACHE_TYPE;
+            return array_combine(['type', 'id'], array_slice($matches, 1));
+        }
+        return [];
+    }
+
+    /**
+     * Format an URI.
+     *
+     * @param string Entity type
+     * @param integer Entity identifier
+     * @param string Type of the URI
+     *
+     * @return string
+     */
+    public function formatURI($type, $id, $uriType = self::SCHEME_TYPE)
+    {
+        switch ($uriType) {
+            case self::SCHEME_TYPE:
+                return 'entity://' . $type . '/' . $id;
+            case self::STACHE_TYPE:
+                return '{{' . $type . '/' . $id . '}}';
+        }
+        throw new \InvalidArgumentException(sprintf("%s: invalid URI type", $uriType));
     }
 
     /**
