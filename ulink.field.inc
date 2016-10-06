@@ -180,16 +180,28 @@ function ulink_field_widget_form(&$form, &$form_state, $field, $instance, $langc
 
   $element['value'] = [
     '#type'             => 'textfield',
-    '#title'            => t('URL'),
+    '#title'            => t('Link URL'),
     '#default_value'    => isset($items[$delta]['value']) ? $items[$delta]['value'] : '',
     '#maxlength'        => 2048,
     '#required'         => !empty($element['#required']),
     '#element_validate' => ['ulink_validate_url'],
   ];
 
-  if (!empty($settings['autocomplete'])) {
-    $element['value']['#attached']['library'][] = ['ulink', 'dialog'];
-    $element['value']['#attributes']['class'][] = 'ulink-autocomplete';
+  // Adds a link to the current entity, if necessary.
+  if (!empty($element['value']['#default_value'])) {
+    try {
+      /** @var \MakinaCorpus\ULink\EntityLinkGenerator $generator */
+      $generator = \Drupal::service('ulink.entity_link_generator');
+      $parts = $generator->decomposeURI($element['value']['#default_value']);
+      if (isset($parts['id'])) {
+        $node = node_load($parts['id']);
+        $element['value']['#description'] = t('Currently links to !link.', [
+          '!link' => l($node->title, 'node/' . $node->nid, [
+            'attributes' => ['target' => '_blank'],
+          ]),
+        ]);
+      }
+    } catch (\Exception $e) {}
   }
 
   if (!module_exists('elements')) {
@@ -198,12 +210,18 @@ function ulink_field_widget_form(&$form, &$form_state, $field, $instance, $langc
 
   $element['title'] = [
     '#type'             => 'textfield',
-    '#title'            => t('Title'),
+    '#title'            => t('Link title'),
     '#default_value'    => isset($items[$delta]['title']) ? $items[$delta]['title'] : '',
     '#maxlength'        => 1024,
     '#weight'           => 10,
-    '#description'      => t("If you leave it empty, internal links will have the target entity title"),
   ];
+
+  if (!empty($settings['autocomplete'])) {
+    $element['value']['#attached']['library'][] = ['ulink', 'dialog'];
+    $element['value']['#attributes']['class'][] = 'ulink-autocomplete';
+    $element['value']['#attributes']['placeholder'][] = t("Enter at least 3 characters to get suggestions");
+    $element['title']['#attributes']['placeholder'][] = t("If empty, autocomplete will put the entity title here");
+  }
 
   $element['attributes'] = [
     '#type'             => 'value',
