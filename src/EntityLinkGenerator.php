@@ -5,18 +5,25 @@ namespace MakinaCorpus\ULink;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManager;
 
+use MakinaCorpus\ULink\EventDispatcher\EntityLinkFilterEvent;
+
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 /**
  * Generate links from internal resources URI
  *
- * @todo unit test me!
+ * @todo
+ *  - Unit test me!
+ *  - Replace all arrays of URI information by instances
+ *    of a class designed for that.
  */
 final class EntityLinkGenerator
 {
     const SCHEME_TYPE = 'scheme';
     const STACHE_TYPE = 'stache';
 
-    const SCHEME_REGEX = '@entity:(|//)([\w-]+)/([a-zA-Z\d]+)@';
-    const STACHE_REGEX = '@\{\{([\w-]+)/([a-zA-Z\d]+)\}\}@';
+    const SCHEME_REGEX = '@entity:(?:|//)(?<type>[\w-]+)/(?<id>[a-zA-Z\d]+)@';
+    const STACHE_REGEX = '@\{\{(?<type>[\w-]+)/(?<id>[a-zA-Z\d]+)\}\}@';
 
     /**
      * @var EntityManager
@@ -24,13 +31,33 @@ final class EntityLinkGenerator
     private $entityManager;
 
     /**
-     * Default constructor
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * Constructor.
      *
      * @param EntityManager $entityManager
+     * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(EntityManager $entityManager)
+    public function __construct(EntityManager $entityManager, EventDispatcherInterface $eventDispatcher)
     {
         $this->entityManager = $entityManager;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * Provides URI regex patterns keyed by types.
+     *
+     * @return string[]
+     */
+    private function getURIPatterns()
+    {
+        return [
+            self::SCHEME_TYPE => self::SCHEME_REGEX,
+            self::STACHE_TYPE => self::STACHE_REGEX,
+        ];
     }
 
     /**
@@ -116,15 +143,20 @@ final class EntityLinkGenerator
      */
     public function decomposeURI($uri, &$type = null)
     {
-        if (preg_match(self::SCHEME_REGEX, $uri, $matches)) {
-            $type = self::SCHEME_TYPE;
-            return array_combine(['type', 'id'], array_slice($matches, 2));
+        $elements = [];
+
+        foreach ($this->getURIPatterns() as $name => $pattern) {
+            if (preg_match($pattern, $uri, $matches)) {
+                $type = $name;
+                $elements = [
+                    'type'  => $matches['type'],
+                    'id'    => $matches['id'],
+                ];
+                break;
+            }
         }
-        if (preg_match(self::STACHE_REGEX, $uri, $matches)) {
-            $type = self::STACHE_TYPE;
-            return array_combine(['type', 'id'], array_slice($matches, 1));
-        }
-        return [];
+
+        return $elements;
     }
 
     /**
@@ -148,7 +180,7 @@ final class EntityLinkGenerator
     }
 
     /**
-     * Replace all occurences of entity URIs in text by the generated URLs
+     * Replace all occurences of entity URIs in text by the generated URLs.
      *
      * @param string $text
      *
@@ -156,30 +188,56 @@ final class EntityLinkGenerator
      */
     public function replaceAllInText($text)
     {
-        $matches = [];
+        $uriInfo = [];
 
-        if (preg_match_all(EntityLinkGenerator::SCHEME_REGEX, $text, $matches, PREG_OFFSET_CAPTURE)) {
-            foreach (array_reverse($matches[0]) as $match) {
-                list($match, $offset) = $match;
-                try {
-                    $uri = url($match);
-                } catch (\Exception $e) {
-                    $uri = '#'; // Silent fail for frontend
+        // Collects all µlink URIs present in the text and stores them
+        // in an array keyed by their offset.
+        foreach ($this->getURIPatterns() as $pattern) {
+            $matches = [];
+
+            if (preg_match_all($pattern, $text, $matches,  PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+                foreach ($matches as $match) {
+                    list($uri, $offset) = $match[0];
+
+                    $uriInfo[$offset] = [
+                        'uri'   => $uri,
+                        'type'  => $match['type'][0],
+                        'id'    => $match['id'][0],
+                    ];
                 }
-                $text = substr_replace($text, $uri, $offset, strlen($match));
             }
         }
 
-        if (preg_match_all(EntityLinkGenerator::STACHE_REGEX, $text, $matches, PREG_OFFSET_CAPTURE)) {
-            foreach (array_reverse($matches[0]) as $match) {
-                list($match, $offset) = $match;
-                try {
-                    $uri = url($match);
-                } catch (\Exception $e) {
-                    $uri = '#'; // Silent fail for frontend
-                }
-                $text = str_replace($match, $uri, $text);
+        // Sorts collected URIs by descending offset to start replacements
+        // by the end of the text, ensuring in this way that the next offsets
+        // will stay valid after each replacement.
+        krsort($uriInfo);
+
+        // Dispatches an event to allow some alterations of URIs information
+        // before transform them in standard URLs.
+        $event = new EntityLinkFilterEvent($uriInfo);
+        $this->eventDispatcher->dispatch(EntityLinkFilterEvent::EVENT_BEFORE_FILTER, $event);
+
+        // Replaces µlink URIs by standard URLs.
+        foreach ($event->getURIInfo() as $offset => $info) {
+            // Something inserted a new entry!?
+            // Ok, just ignore it.
+            if (!isset($uriInfo[$offset])) {
+                continue;
             }
+            // Something altered the original URI!?
+            // Ok, just retrieve the text's version for the next.
+            if ($info['uri'] !== $uriInfo[$offset]['uri']) {
+                $info['uri'] = $uriInfo[$offset]['uri'];
+            }
+
+            try {
+                $uri = $this->getEntityPath($info['type'], $info['id']);
+            } catch (\Exception $e) {
+                $uri = '#'; // Silent fail for frontend
+            }
+
+            $text = substr_replace($text, $uri, $offset, strlen($info['uri']));
         }
 
         return $text;

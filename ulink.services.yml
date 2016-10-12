@@ -18,4 +18,4 @@ services:
 
   ulink.entity_link_generator:
     class: MakinaCorpus\ULink\EntityLinkGenerator
-    arguments: ["@entity.manager"]
+    arguments: ["@entity.manager", "@event_dispatcher"]
