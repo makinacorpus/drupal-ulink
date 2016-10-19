@@ -1,0 +1,150 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2016-10-19 15:57+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Content selection"
+msgstr "Sélection de contenu"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Link "
+msgstr "Lien"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Link URI"
+msgstr "URI du lien"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Link target"
+msgstr "Cible du lien"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Link text"
+msgstr "Texte du lien"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Link text cannot be empty"
+msgstr "Le texte du lien ne peut pas être vide"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Link title for accessibility"
+msgstr "Titre du lien pour l’accessibilité"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/plugin.js:0
+msgid "Link to content"
+msgstr "Lier au contenu"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "New window"
+msgstr "Nouvelle fenêtre"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "None"
+msgstr "Aucun"
+
+#: sites/all/modules/composer/drupal-ulink/js/ckeditor/dialogs/ulink.js:0
+msgid "Please type in at least 3 letters..."
+msgstr "Veuillez saisir au moins 3 lettres…"
+
+#: sites/all/modules/composer/drupal-ulink/src/Finder/NodeFinder.php:56
+msgid "@type content"
+msgstr "Contenu @type"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:17
+msgid "Stores either external URLs, or internal entity URLs"
+msgstr "Enregistre des URL externes, or des URL vers des entités internes"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:38
+msgid "Link display"
+msgstr "Affichage du lien"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:56
+msgid "Trim the link text to certain number of characters"
+msgstr "Tronquer le texte du lien à un certain nombre de caractères"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:57
+msgid "To leave long link text alone, leave this blank."
+msgstr "Laisser ce champ vide pour conserver toute la longueur du texte."
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:65
+msgid ""
+"Add rel=\"nofollow\" to external links (internal links will remain unchanged)"
+msgstr ""
+"Ajouter rel=\"nofollow\" aux liens externes (les liens internes resteront "
+"inchangés)"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:152
+msgid "Autocomplete internal links"
+msgstr "Autocomplétion de liens internes"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:183
+msgid "Link URL"
+msgstr "URI du lien"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:198
+msgid "Currently links to !link."
+msgstr "Lié actuellement à !link."
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:213
+msgid "Link title"
+msgstr "Titre du lien"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:222
+msgid "Enter at least 3 characters to get suggestions"
+msgstr "Saisissez au moins 3 caractères pour avoir des suggestions"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:223
+msgid "If empty, autocomplete will put the entity title here"
+msgstr "Si laissé vide, l'autocomplétion remplira le titre ici"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:322
+msgid "The URL %url is not valid."
+msgstr "L'URL %url n'est pas valide."
+
+#: sites/all/modules/composer/drupal-ulink/ulink.field.inc:16;132
+msgid "Link"
+msgstr "Lien"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.module:76
+msgid "µLink entity selector"
+msgstr "Sélecteur d'entités µLink"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.module:80
+msgid "Link content"
+msgstr "Lier le contenu"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.module:130
+msgid "Does some linking"
+msgstr "Fait des liens"
+
+#: sites/all/modules/composer/drupal-ulink/ulink.module:131
+msgid ""
+"Will process anything like entity://TYPE/ID where TYPE is an entity type and "
+"ID is an entity identifier and convert it to link"
+msgstr ""
+"Traitera tout ce qui est de la forme entity://TYPE/ID ou TYPE est un type "
+"d'entité et ID l'identifiant d'entité et le convertira en lien"
+
+#: sites/all/modules/composer/drupal-ulink/views/dialog.html.twig:3
+msgid "Search"
+msgstr "Rechercher"
+
+#: sites/all/modules/composer/drupal-ulink/views/dialog.html.twig:4
+msgid "Some article"
+msgstr "Un article quelconque"
+
+#: sites/all/modules/composer/drupal-ulink/views/dialog.html.twig:7
+msgid "I found it!"
+msgstr "J’ai trouvé!"
