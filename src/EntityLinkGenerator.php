@@ -232,7 +232,7 @@ final class EntityLinkGenerator
             }
 
             try {
-                $uri = $this->getEntityPath($info['type'], $info['id']);
+                $uri = url($this->getEntityPath($info['type'], $info['id']));
             } catch (\Exception $e) {
                 $uri = '#'; // Silent fail for frontend
             }
