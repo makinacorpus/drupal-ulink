@@ -125,7 +125,12 @@ function ulink_field_widget_info() {
     'ulink' => [
       'label'       => t("Link"),
       'field types' => ['ulink'],
-      'settings'    => [],
+      'settings'    => [
+        'autocomplete' => FALSE,
+        // TODO
+        // 'allow_external' => FALSE,
+        // 'allowed_bundles'  => [],
+      ],
     ],
   ];
 }
@@ -134,15 +139,38 @@ function ulink_field_widget_info() {
  * Implements hook_field_widget_settings_form().
  */
 function ulink_field_widget_settings_form($field, $instance) {
-  return [
-    // @todo Anything to do, at all?
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+
+  $form['autocomplete'] = [
+    '#title'         => t('Autocomplete internal links'),
+    '#type'          => 'checkbox',
+    '#default_value' => !empty($settings['autocomplete']),
   ];
+
+  // TODO
+  //  $form['allow_external'] = [
+  //    '#title' => t('Allow external links'),
+  //    '#type' => 'checkbox',
+  //    '#default_value' => $settings['allow_external'],
+  //  ];
+  //
+  //  $form['allowed_bundles'] = [
+  //    '#title' => t('Allowed content types'),
+  //    '#type' => 'checkboxes',
+  //    '#options' => node_type_get_names(),
+  //    '#default_value' => $settings['allowed_bundles'],
+  //  ];
+
+  return $form;
 }
 
 /**
  * Implements hook_field_widget_form().
  */
 function ulink_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
 
   $element['value'] = [
     '#type'             => 'textfield',
@@ -153,9 +181,13 @@ function ulink_field_widget_form(&$form, &$form_state, $field, $instance, $langc
     '#element_validate' => ['ulink_validate_url'],
   ];
 
+  if (!empty($settings['autocomplete'])) {
+    $element['value']['#attached']['library'][] = ['ulink', 'dialog'];
+    $element['value']['#attributes']['class'][] = 'ulink-autocomplete';
+  }
+
   if (!module_exists('elements')) {
     $element['value']['#type'] = 'textfield';
-
   }
 
   $element['title'] = [

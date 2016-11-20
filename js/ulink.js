@@ -146,6 +146,24 @@ var ULink = {};
       $(context).find("body").once("ulink", function () {
         $(this).append("<div id=\"ulink-dialog\" style=\"display:none;\"><div class=\"content\"></div></div>");
       });
+      // Activate on autocomplete fields
+      $('input.ulink-autocomplete').each(function() {
+        var input = this;
+        var title = $('[name="' + $(input).attr('name').replace('value', 'title') + '"]');
+        ULink.selector.attach(input, function (result) {
+          if (!result || !result.title) { // Filter out invalid results
+            return;
+          }
+          if (result.id && result.type) {
+            // Do not override previous user input
+            if (title && !title.val()) {
+              // Convert HTML entities
+              title.val($("<div/>").html(result.title).text());
+            }
+            $(input).val('entity:' + result.type + '/' + result.id);
+          }
+        });
+      });
     }
   };
 
