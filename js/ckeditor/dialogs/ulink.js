@@ -171,6 +171,12 @@
           // We changed the content, so need to select it again.
           selection.selectElement(element);
         }
+      },
+
+      // This is fired on closing the dialog.
+      onCancel: function () {
+        var hrefElement = this.getContentElement('tab-content', 'href');
+        ULink.selector.close(hrefElement.getInputElement().$);
       }
     };
   });

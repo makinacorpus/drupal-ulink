@@ -75,13 +75,15 @@ var ULink = {};
     localCallbacks.constructURL = callbacks.constructURL;
 
     input.betterAutocomplete('init', '/ulink/search/', {}, localCallbacks);
-  };
+  }
 
-  function close(dialog) {
+  function close(input) {
+    var dialog = $('#ulink-dialog');
+    jQuery(input).betterAutocomplete('destroy');
     dialog.find(".content").html("");
     dialog.dialog("close");
     dialog.dialog("destroy");
-  };
+  }
 
   /**
    * Enable the global dialog
@@ -135,7 +137,8 @@ var ULink = {};
    */
   ULink.selector = {
     open: open,
-    attach: attach
+    attach: attach,
+    close: close
   };
 
   /**
