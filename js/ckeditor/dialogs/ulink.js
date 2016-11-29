@@ -11,6 +11,7 @@
       title: Drupal.t("Link to content"),
       minWidth: 400,
       minHeight: 200,
+      resizable: CKEDITOR.DIALOG_RESIZE_NONE,
       contents: [
         {
           id: 'tab-content',
