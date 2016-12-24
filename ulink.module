@@ -133,6 +133,13 @@ function ulink_filter_info() {
       'process callback'  => 'ulink_filter_process',
       'settings callback' => 'ulink_filter_settings',
       'default settings'  => [],
+      // It is highly possible, depending on the site's data, that one or more
+      // fields do circular entities references; in such cases text_field_load()
+      // will do circular node_load() or entity_load() calls and create infinite
+      // loop recursions, until we didn't fix this problem, we need to disable
+      // caching in order to disable text_field_load() sanitizing upon field
+      // data load.
+      'cache'             => false,
     ],
   ];
 }
