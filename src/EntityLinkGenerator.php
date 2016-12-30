@@ -26,6 +26,20 @@ final class EntityLinkGenerator
     const STACHE_REGEX = '@\{\{(?<type>[\w-]+)/(?<id>[a-zA-Z\d]+)\}\}@';
 
     /**
+     * Performance optimization for various Drupal hooks.
+     *
+     * This always must match above regexes.
+     *
+     * @param string $uri
+     *
+     * @return boolean
+     */
+    static public function URIIsCandidate($uri)
+    {
+        '{' === $uri[0] || 'entity://' === substr($uri, 0, 9) || 1 === substr_count($uri, '/');
+    }
+
+    /**
      * @var EntityManager
      */
     private $entityManager;
@@ -144,6 +158,10 @@ final class EntityLinkGenerator
     public function decomposeURI($uri, &$type = null)
     {
         $elements = [];
+
+        if (!self::URIIsCandidate($uri)) {
+            return $elements;
+        }
 
         foreach ($this->getURIPatterns() as $name => $pattern) {
             if (preg_match($pattern, $uri, $matches)) {

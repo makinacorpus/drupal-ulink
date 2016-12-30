@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormState;
 
 use MakinaCorpus\ULink\Controller\DialogController;
 use MakinaCorpus\ULink\EntityLinkFilter;
+use MakinaCorpus\ULink\EntityLinkGenerator;
 
 /**
  * Field API needs this.
@@ -43,6 +44,15 @@ function ulink_menu() {
  * @return string
  */
 function ulink_get_path($uri, $raiseExceptions = false) {
+
+  // Sad and ugly performance optimization
+  if (!EntityLinkGenerator::URIIsCandidate($uri)) {
+    if ($raiseExceptions) {
+      throw new \Exception();
+    }
+    return;
+  }
+
   try {
     /** @var \MakinaCorpus\ULink\EntityLinkGenerator $generator */
     $generator = \Drupal::service('ulink.entity_link_generator');
