@@ -11,7 +11,7 @@
     init: function (editor) {
 
       editor.addCommand('ulink', new CKEDITOR.dialogCommand( 'ulinkDialog', {
-        allowedContent: 'a[name,id,href,title]',
+        allowedContent: 'a[name,id,href,title,target]',
         requiredContent: 'a[href]'
       }));
 
