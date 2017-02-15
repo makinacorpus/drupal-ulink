@@ -36,7 +36,7 @@ final class EntityLinkGenerator
      */
     static public function URIIsCandidate($uri)
     {
-        '{' === $uri[0] || 'entity://' === substr($uri, 0, 9) || 1 === substr_count($uri, '/');
+        return '{' === $uri[0] || 'entity://' === substr($uri, 0, 9) || 1 === substr_count($uri, '/');
     }
 
     /**
