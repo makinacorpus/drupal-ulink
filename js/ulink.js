@@ -7,16 +7,6 @@ var ULink = {};
   "use strict";
 
   /**
-   * Default jQuery dialog options
-   */
-  var dialogOptions = {
-    width: "600px",
-    height: "auto",
-    open: true,
-    modal: true
-  };
-
-  /**
    * Better autocomplete callbacks
    */
   var callbacks = {
@@ -78,65 +68,16 @@ var ULink = {};
   }
 
   function close(input) {
-    var dialog = $('#ulink-dialog');
+    // We just need to destroy the autocomplete and the jQuery dialog
     jQuery(input).betterAutocomplete('destroy');
-    dialog.find(".content").html("");
-    dialog.dialog("close");
-    dialog.dialog("destroy");
-  }
-
-  /**
-   * Enable the global dialog
-   */
-  function open(onSubmitCallback) {
-    var dialog = $('#ulink-dialog');
-
-    // First find content
-    $.ajax({
-      url: '/ulink/dialog',
-      async: true,
-      accepts: 'application/json',
-      dataType: 'json',
-      success: function (data) {
-
-        if (!data.form) {
-          return;
-        }
-
-        dialog.find(".content").html(data.form);
-
-        var input = dialog.find("input.ulink-value");
-        var hidden = dialog.find("input.ulink-uri");
-        attach(input);
-
-        dialog.find(".ulink-submit").off("click").on("click", function (event) {
-          event.stopPropagation();
-          if (input.val()) {
-            close(dialog);
-            if (onSubmitCallback) {
-              onSubmitCallback(input.val(), hidden.val());
-            }
-          }
-          return false;
-        });
-
-        // setTimeout() call is a workaround: in some edge cases the dialog
-        // opens too quickly and does not center properly according to content
-        // size..
-        // see http://stackoverflow.com/questions/2231446
-        setTimeout(function () {
-          dialog.dialog(dialogOptions);
-          dialog.show().dialog("open");
-        }, 500);
-      }
-    });
+    // This ensure the dialog actually disappear
+    return true;
   }
 
   /**
    * Public API.
    */
   ULink.selector = {
-    open: open,
     attach: attach,
     close: close
   };
@@ -146,11 +87,8 @@ var ULink = {};
    */
   Drupal.behaviors.ulink = {
     attach: function (context) {
-      $(context).find("body").once("ulink", function () {
-        $(this).append("<div id=\"ulink-dialog\" style=\"display:none;\"><div class=\"content\"></div></div>");
-      });
       // Activate on autocomplete fields
-      $('input.ulink-autocomplete').each(function() {
+      $('input.ulink-autocomplete', context).each(function() {
         var input = this;
         var title = $('[name="' + $(input).attr('name').replace('value', 'title') + '"]');
         ULink.selector.attach(input, function (result) {
