@@ -1,7 +1,9 @@
 /*global jQuery, Drupal */
 
 // Allow external code to use the selector.
-var ULink = {};
+// window hack is to make it work within webpack.
+window.ULink = {};
+var ULink = window.ULink;
 
 (function ($) {
   "use strict";
