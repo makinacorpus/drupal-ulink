@@ -48,6 +48,6 @@ class DialogController extends Controller
      */
     public function dialogAction()
     {
-        return new JsonResponse(['form' => $this->renderView('module:ulink:views/dialog.html.twig')]);
+        return new JsonResponse(['form' => $this->renderView('@ulink/views/dialog.html.twig')]);
     }
 }
