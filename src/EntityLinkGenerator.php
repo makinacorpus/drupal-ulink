@@ -135,7 +135,7 @@ final class EntityLinkGenerator
      * @param string $uri
      *   Must match one of the supported schemes
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public function getEntityPathFromURI($uri)
     {
