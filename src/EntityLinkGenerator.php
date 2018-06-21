@@ -4,9 +4,8 @@ namespace MakinaCorpus\ULink;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManager;
-
+use MakinaCorpus\ULink\EventDispatcher\EntityGetPathEvent;
 use MakinaCorpus\ULink\EventDispatcher\EntityLinkFilterEvent;
-
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -106,6 +105,13 @@ final class EntityLinkGenerator
      */
     public function getEntityPath($type, $id)
     {
+        // Allow other modules to interact
+        $event = new EntityGetPathEvent($type, $id);
+        $this->eventDispatcher->dispatch(EntityGetPathEvent::EVENT_GET_PATH, $event);
+        if ($path = $event->getPath()) {
+            return $path;
+        }
+
         // In most cases, this will be used for nodes only, so just set the
         // node URL.
         // It will avoid nasty bugs, since the 'text' core module does sanitize
