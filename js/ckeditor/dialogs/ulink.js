@@ -52,15 +52,19 @@
 
         var editor = this.getParentEditor();
         var selection = editor.getSelection();
-        var element = plugin.getSelectedLink(editor);
-        if (element && element.hasAttribute('href')) {
+        var currentLink = plugin.getSelectedLink(editor);
+        var selectedElement = selection.getSelectedElement();
+        var selectionIsLink = currentLink && currentLink.hasAttribute('href');
+        var isEmpty = /^\s*$/.test(selection.getSelectedText());
+
+        if (selectionIsLink) {
           // Don't change selection if some element is already selected.
           // For example - don't destroy fake selection.
           if (!selection.getSelectedElement()) {
-            selection.selectElement(element);
+            selection.selectElement(currentLink);
           }
         } else {
-          element = null;
+          currentLink = null;
         }
 
         // Fill in values from the current selection
@@ -68,13 +72,16 @@
         var textElement = this.getContentElement('tab-content', 'text');
         var titleElement = this.getContentElement('tab-content', 'title');
         var targetElement = this.getContentElement('tab-content', 'target');
-        if (element) {
-          hrefElement.setValue(element.getAttribute('href'));
-          textElement.setValue(element.getHtml());
-          titleElement.setValue(element.getAttribute('title'));
-          targetElement.setValue(element.getAttribute('target'));
-        } else {
-          textElement.setValue(selection.getSelectedText());
+
+        if (selectionIsLink) {
+          hrefElement.setValue(currentLink.getAttribute('href'));
+          titleElement.setValue(currentLink.getAttribute('title'));
+          targetElement.setValue(currentLink.getAttribute('target'));
+        }
+        if (currentLink || selectedElement || !isEmpty) {
+          // Disable text, we have a selection already
+          textElement.setValue("...");
+          textElement.disable();
         }
 
         // Prepare the link to content feature
@@ -101,54 +108,30 @@
       onOk: function () {
 
         var data = {};
-
         this.commitContent(data);
 
+        var editor = this.getParentEditor();
         var selection = editor.getSelection();
-        var element = plugin.getSelectedLink(editor);
-        if (element && element.hasAttribute('href')) {
+        var currentLink = plugin.getSelectedLink(editor);
+        var selectedElement = selection.getSelectedElement();
+        var selectionIsLink = currentLink && currentLink.hasAttribute('href');
+
+        if (selectionIsLink) {
           // Don't change selection if some element is already selected.
           // For example - don't destroy fake selection.
-          if (!selection.getSelectedElement()) {
-            selection.selectElement(element);
+          if (!selectedElement) {
+            selection.selectElement(currentLink);
           }
         } else {
-          element = null;
+          currentLink = null;
         }
 
-        var hrefElement = this.getContentElement('tab-content', 'href');
-        var textElement = this.getContentElement('tab-content', 'text');
-        var titleElement = this.getContentElement('tab-content', 'title');
-        var targetElement = this.getContentElement('tab-content', 'target');
+        var hrefValue = this.getContentElement('tab-content', 'href').getValue();
+        var titleValue = this.getContentElement('tab-content', 'title').getValue();
+        var textValue = this.getContentElement('tab-content', 'text').getValue();
+        var targetValue = this.getContentElement('tab-content', 'target').getValue();
 
-        if (!element) {
-
-          // Creating a new element
-          var range = selection.getRanges()[0];
-          var text = new CKEDITOR.dom.text(textElement.getValue());
-
-          // Use link URL as text with a collapsed cursor
-          if (range.collapsed) {
-            range.insertNode(text);
-            range.selectNodeContents(text);
-          }
-
-          var style = new CKEDITOR.style({
-            element: 'a',
-            attributes: {
-              href: hrefElement.getValue(),
-              title: titleElement.getValue(),
-              target: targetElement.getValue()
-            }
-          });
-
-          style.type = CKEDITOR.STYLE_INLINE; // need to override... dunno why.
-          style.applyToRange(range, editor);
-          range.select();
-
-        } else {
-
-          // Updating an existing one
+        if (currentLink) { // Updating an existing link
           var self = this;
 
           ['href', 'title', 'target'].forEach(function (attribute) {
@@ -157,20 +140,55 @@
             if ("undefined" !== typeof dialogElement) {
               value = dialogElement.getValue();
               if (value) {
-                element.setAttribute(attribute, value);
+                currentLink.setAttribute(attribute, value);
               } else {
-                element.removeAttribute(attribute);
+                currentLink.removeAttribute(attribute);
               }
             } else {
-              element.removeAttribute(attribute);
+              currentLink.removeAttribute(attribute);
             }
           });
 
-          textElement = this.getContentElement('tab-content', 'text');
-          element.setHtml(textElement.getValue());
-
           // We changed the content, so need to select it again.
-          selection.selectElement(element);
+          selection.selectElement(currentLink);
+
+        } else { // We are creating a new link
+
+          var rangesToSelect = [];
+          var style = new CKEDITOR.style({
+            element: 'a',
+            attributes: {
+              href: hrefValue,
+              title: titleValue,
+              target: targetValue
+            }
+          });
+          style.type = CKEDITOR.STYLE_INLINE; // need to override... dunno why.
+
+          var ranges = selection.getRanges();
+          for (var i = 0; i < ranges.length; i++) {
+            var range = ranges[i];
+
+            if (range.collapsed) { // Use link URL as text with a collapsed cursor.
+              var text = new CKEDITOR.dom.text(textValue);
+              range.insertNode(text);
+              range.selectNodeContents(text);
+            } else {
+              // Editable links nested within current range should be removed, so that the link is applied to whole selection.
+              /*
+              var nestedLinks = range._find('a');
+              for (var j = 0; j < nestedLinks.length; j++) {
+                nestedLinks[j].remove(true);
+              }
+               */
+            }
+
+            // Apply style.
+            style.applyToRange(range, editor);
+            rangesToSelect.push(range);
+          }
+
+          editor.getSelection().selectRanges(rangesToSelect);
         }
       },
 
