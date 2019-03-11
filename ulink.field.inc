@@ -311,6 +311,10 @@ function ulink_validate_url(&$element, &$form_state) {
     return; // '#size' and '#required' are already validated by the form API.
   }
 
+  if (preg_match('@^\[.*:.*\]$@', $value)) {
+    return; // This is a token.
+  }
+
   // Attempt to generate internal links.
   $generated = ulink_get_path($value);
   if ($generated) {
