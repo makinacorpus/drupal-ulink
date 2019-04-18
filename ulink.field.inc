@@ -87,8 +87,11 @@ function ulink_field_formatter_view($entity_type, $entity, $field, $instance, $l
 
     foreach ($items as $delta => $item) {
       $title = empty($item['title']) ? $item['value'] : $item['title'];
+      if (!$url = trim($item['value'])) {
+        continue;
+      }
 
-      $generated = ulink_get_path($item['value']);
+      $generated = ulink_get_path($url);
       if ($generated) {
         $item['path'] = $generated;
         // @todo for internal links, we must be able to load the entity to
@@ -97,7 +100,10 @@ function ulink_field_formatter_view($entity_type, $entity, $field, $instance, $l
 
         }
       } else {
-        $parsed = drupal_parse_url($item['value']);
+        if ('[' === $url[0]) {
+          $url = token_replace($url);
+        }
+        $parsed = drupal_parse_url($url);
         $item['path'] = $parsed['path'];
         $item['options']['query'] = $parsed['query'];
         $item['options']['fragment'] = $parsed['fragment'];
